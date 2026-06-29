@@ -31,24 +31,25 @@ This library is that implementation.
 
 ---
 
-## Gas Benchmarks (Arbitrum One, Stylus WASM)
+## Gas Benchmarks (Arbitrum Stylus WASM — estimativas)
 
-Measured using `cargo stylus bench` on Arbitrum Sepolia testnet (2026-06-29).
+> **Nota:** Os valores abaixo são estimativas baseadas em contratos Stylus similares e no custo de operações WASM no Arbitrum. O benchmark real requer deploy em Arbitrum Sepolia — veja `bench/` para o harness Foundry que mede os valores precisos após deploy.
 
-| Operation | Gas (Stylus WASM) | Gas (EVM baseline) | Notes |
+| Operation | Gas estimado (Stylus WASM) | Gas (EVM baseline) | Notas |
 |---|---|---|---|
-| `ecrecover` (ECDSA, EVM precompile) | ~3,000 | 3,000 | Native precompile — reference |
-| `mlDsaVerify` (ML-DSA-65, WASM) | ~112,000 | N/A | 37× more expensive than ecrecover |
-| `mlDsaSign` (ML-DSA-65, WASM) | ~168,000 | N/A | Signing only for testing |
-| `mlDsaKeyGen` (ML-DSA-65, WASM) | ~95,000 | N/A | Key gen only for testing |
+| `ecrecover` (ECDSA, EVM precompile) | ~3,000 | 3,000 | Precompile nativo — referência |
+| `mlDsaVerify` (ML-DSA-65, WASM) | ~90k–130k | N/A | 30–43× mais caro que ecrecover |
+| `mlDsaVerifyHybrid` (ECDSA ou ML-DSA) | ~100k–140k | N/A | Chama ecrecover precompile + ML-DSA |
+| `mlDsaSign` (ML-DSA-65, WASM) | ~140k–190k | N/A | Apenas para testes — não use on-chain com chave real |
+| `mlDsaKeyGen` (ML-DSA-65, WASM) | ~80k–110k | N/A | Apenas para testes/cerimônias |
 
-**Cost in USD** (Arbitrum One, 0.01 gwei basefee, ETH = $3,500):
+**Custo estimado em USD** (Arbitrum One, 0.01 gwei basefee, ETH = $3,500):
 - `ecrecover`: ~$0.0001
-- `mlDsaVerify`: ~$0.004 (~4x less than a Uniswap v3 swap at typical gas prices)
+- `mlDsaVerify`: ~$0.003–$0.005 (comparável a uma chamada Uniswap v3 simples)
 
-**Interpretation:** ML-DSA verification is feasible for high-value operations (DAO governance votes, bridge attestations, multisig transactions) where security justifies the premium. It is not suitable for high-frequency trading or operations requiring sub-millisecond finality.
+**Interpretação:** ML-DSA verification é viável para operações de alto valor (votos de DAO, attestations de bridge, multisig) onde segurança justifica o prêmio. Não é adequado para trading de alta frequência.
 
-**Expected improvement:** As Stylus VM matures and native ML-DSA precompile EIPs advance, gas cost will decrease by 10–30×.
+**Projeção:** À medida que o Stylus VM otimiza e eventual precompile nativo chega via EIP, o custo deve cair 10–30×.
 
 ---
 

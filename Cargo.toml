@@ -1,0 +1,38 @@
+[package]
+name = "stylus-ml-dsa"
+version = "0.1.0"
+edition = "2021"
+description = "ML-DSA (FIPS 204 / CRYSTALS-Dilithium) signature verification as an Arbitrum Stylus WASM contract — first ML-DSA precompile-equivalent on an EVM L2"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/quantumscan-io/stylus-ml-dsa"
+keywords = ["arbitrum", "stylus", "post-quantum", "ml-dsa", "dilithium"]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# Arbitrum Stylus SDK
+stylus-sdk = { version = "0.6.0", features = ["export-abi"] }
+
+# NIST FIPS 204 ML-DSA implementation — pure Rust, no_std compatible
+ml-dsa = { version = "0.3.0", default-features = false, features = ["ml-dsa-65"] }
+
+# Needed for Stylus byte manipulation
+alloy-primitives = { version = "0.7.0", default-features = false }
+
+# Mini-alloc for WASM
+mini-alloc = "0.4.2"
+
+[features]
+export-abi = ["stylus-sdk/export-abi"]
+
+[profile.release]
+codegen-units = 1
+strip = true
+lto = true
+panic = "abort"
+opt-level = "z"   # minimize WASM size
+
+# Stylus programs must stay under 24KB uncompressed
+[profile.release.package.ml-dsa]
+opt-level = "z"
